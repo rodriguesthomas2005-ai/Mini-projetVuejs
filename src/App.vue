@@ -8,10 +8,10 @@ import ListMedicaments from './components/ListMedicaments.vue'
     <nav class="sidebar">
       <h2 class="menu-title">Pharmacie</h2>
       <ul>
-        <li><button class="btn-nav" id="btn-medic">💊Médicaments</button></li>
-        <li><button class="btn-nav" id="btn-categorie">🏷️ Catégories</button></li>
-        <li><button class="btn-nav" id="btn-commande">📦 Commande</button></li>
-        <li><button class="btn-nav" id="btn-fournisseur">🏢 Fournisseur</button></li>
+        <li><a href="#">💊Médicaments</a></li>
+        <li><a href="#">🏷️ Catégories</a></li>
+        <li><a href="#">📦 Commande</a></li>
+        <li><a href="#">🏢 Fournisseur</a></li>
       </ul>
     </nav>
     <div class="conteneur-g">
@@ -46,9 +46,6 @@ import ListMedicaments from './components/ListMedicaments.vue'
   padding-bottom: 10px;
 }
 
-.btn-nav{
-  
-}
 
 .sidebar ul {
   list-style: none;
@@ -60,13 +57,16 @@ import ListMedicaments from './components/ListMedicaments.vue'
 
 .sidebar li {
   margin: 15px 0;
+}
+
+.sidebar a {
   color: white;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
 }
 
-.sidebar li:hover {
+.sidebar a:hover {
   color: #4caf50;
 }
 

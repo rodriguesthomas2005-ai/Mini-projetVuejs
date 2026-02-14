@@ -36,6 +36,7 @@ function getMedic() {
 onMounted(() => {
   getMedic();
 });
+
 </script>
 
 <template>
