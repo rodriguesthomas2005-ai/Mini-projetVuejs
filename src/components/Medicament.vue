@@ -40,6 +40,9 @@ onMounted(() => {
 
 <template>
   <div class="medicaments-container">
+    <div id="ajouter-medic" class="medic-item">
+      <h3>Ajouter un médicament</h3>
+    </div>
     <div v-for="medic in listeMedic" :key="medic.id" class="medic-item">
       <h3>{{ medic.nom }}</h3>
       <div class="medic-image">
@@ -58,16 +61,31 @@ onMounted(() => {
 <style>
 .medicaments-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
-  max-width: 1200px;
+  max-width: 90%;
   margin: 0 auto;
 }
+.medic-image {
+  height: 80%;
+  width: 100%;
+  display: flex;             
+  flex-direction: column;    
+  justify-content: center;  
+  align-items: center;
+}
+
 .medic-image img {
-  max-height: 80%;
   max-width: 80%;
+  max-height: 80%;
 
   object-fit: contain;
+}
+#ajouter-medic{
+  display: flex;             
+  flex-direction: column;    
+  justify-content: center;  
+  align-items: center;
 }
 .medic-item {
   background: white;
@@ -82,6 +100,7 @@ onMounted(() => {
 
 .medic-item:hover {
   transform: translateY(-5px);
+  border: 1px solid #4caf50;
 }
 
 h3 {

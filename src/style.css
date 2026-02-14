@@ -33,7 +33,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
-    --text-h: #f3f4f6;
+    --text-h: #2c3e50;
     --bg: #16171d;
     --border: #2e303a;
     --code-bg: #1f2028;
@@ -52,8 +52,8 @@
 
 body {
   margin: 0;
-  background: url() center/cover;
-  min-height: 100vh;
+  background: url(./background.png) center/cover;
+  background-attachment: fixed;
 }
 
 h1,
@@ -159,7 +159,7 @@ code {
 }
 
 #app {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
@@ -296,3 +296,4 @@ code {
     border-right-color: var(--border);
   }
 }
+
