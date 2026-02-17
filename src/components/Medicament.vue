@@ -1,7 +1,7 @@
 <script setup>
 import { reactive, onMounted, watch } from 'vue';
 import { Medicament } from '../Medicament.js';
-const url = 'https://springajax.herokuapp.com/api/medicaments';
+const url = 'http://localhost:8080/api/medicaments';
 const listeMedic = reactive([]);
 
 function getMedic() {
