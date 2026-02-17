@@ -24,7 +24,7 @@ import ListMedicaments from './components/ListMedicaments.vue'
 
 <style>
 .body {
-  display: flex; /* Aligne sidebar et main-content horizontalement */
+  display: flex;
   min-height: 100vh;
 }
 

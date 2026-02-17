@@ -1,9 +1,35 @@
 <script setup>
 import { reactive, onMounted, watch } from 'vue';
 import { Medicament } from '../Medicament.js';
+import { Categorie } from '../Categorie.js';
 const url = 'https://springajax.herokuapp.com/api/medicaments';
 const listeMedic = reactive([]);
+const urlCategorie = 'https://springajax.herokuapp.com/api/categories';
 
+
+function getCategorie(){
+  const fetchOptions = { method: 'GET' };
+  fetch(urlCategorie, fetchOptions)
+    .then((response) => {
+      return response.json();
+    })
+    .then((dataJSON) => {
+      console.log(dataJSON);
+      for (let elt of dataJSON._embedded.categories) {
+        //console.log(elt);
+        let c = new Categorie(
+          elt.code,
+          elt.libelle,
+          elt.description
+        );
+        listeMedic.push(m);
+        
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 function getMedic() {
   const fetchOptions = { method: 'GET' };
   fetch(url, fetchOptions)
@@ -13,7 +39,7 @@ function getMedic() {
     .then((dataJSON) => {
       console.log(dataJSON);
       for (let elt of dataJSON._embedded.medicaments) {
-        console.log(elt);
+        //console.log(elt);
         let m = new Medicament(
           elt.reference,
           elt.fournisseur,
@@ -25,8 +51,10 @@ function getMedic() {
           elt.unitesEnStock
         );
         listeMedic.push(m);
+        
       }
-      console.log(listeMedic);
+      //console.log(listeMedic);
+      m.isFlipped = false;
     })
     .catch((error) => {
       console.log(error);
@@ -34,9 +62,14 @@ function getMedic() {
 }
 
 onMounted(() => {
+  getCategorie();
   getMedic();
 });
 
+function afficherDetails(medic) {
+  console.log("Détails du médicament cliqué :", medic.nom);
+  medic.isFlipped = !medic.isFlipped;
+}
 </script>
 
 <template>
@@ -44,10 +77,19 @@ onMounted(() => {
     <div id="ajouter-medic" class="medic-item">
       <h3>Ajouter un médicament</h3>
     </div>
-    <div v-for="medic in listeMedic" :key="medic.id" class="medic-item">
+    <div v-for="medic in listeMedic" :key="medic.id" class="medic-item" @click="afficherDetails(medic)">
       <h3>{{ medic.nom }}</h3>
       <div class="medic-image">
-        <img :src="medic.image" alt="image médicament" />
+        <div v-if="medic.isFlipped" class="medic-details">
+          <p>Fournisseur : {{ medic.fournisseur }}</p>
+          <p>Prix : {{ medic.prix }} €</p>
+          <p>Stock : {{ medic.nbstock }} unités</p>
+          <p>Quantité par boîte : {{ medic.qteunite }} </p>
+        </div>
+
+        <div v-else class="medic-image">
+          <img :src="medic.image" alt="image médicament" />
+        </div>
       </div>
       <div class="medic-button">
         <button id="supprimer">Supprimer</button>
