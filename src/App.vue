@@ -8,10 +8,8 @@ import ListMedicaments from './components/ListMedicaments.vue'
     <nav class="sidebar">
       <h2 class="menu-title">Pharmacie</h2>
       <ul>
-        <li><a href="#">💊Médicaments</a></li>
-        <li><a href="#">🏷️ Catégories</a></li>
-        <li><a href="#">📦 Commande</a></li>
-        <li><a href="#">🏢 Fournisseur</a></li>
+        <li><a href="#">Médicaments</a></li>
+        <li><a href="#">Catégories</a></li>
       </ul>
     </nav>
     <div class="conteneur-g">

@@ -8,7 +8,7 @@ export class Medicament {
     nom,
     prix,
     qteunite,
-    nbstock
+    nbstock,
   ) {
     this._fournisseur = fournisseur;
     this._image = image;
@@ -18,6 +18,8 @@ export class Medicament {
     this._prix = prix;
     this._qteunite = qteunite;
     this._nbstock = nbstock;
+    this._categorie = "";
+    this._description = ""
   }
   // ---- getters
   get fournisseur() {
@@ -44,6 +46,12 @@ export class Medicament {
   get id() {
     return this._id;
   }
+  get categorie() {
+    return this._categorie;
+  }
+  get description() {
+    return this._description;
+  }
 
   // ---- setters
   set nbstock(nbstock) {
@@ -56,6 +64,14 @@ export class Medicament {
 
   set indispo(indispo) {
     this._indisponible = indispo;
+  }
+
+  set description(description){
+    this._description=description;
+  }
+
+  set categorie(categorie){
+    this._categorie=categorie;
   }
 
   // -- toString

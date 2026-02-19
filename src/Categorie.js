@@ -1,33 +1,23 @@
 // une chose export
 export class Categorie {
     constructor(
-      code,
-      description,
-      libelle
+      id,
+      nom
     ) {
-      this._code,
-      this._decription,
-      this._libelle
+      this._id=id;
+      this._nom=nom
     }
     // ---- getters
-    get code() {
-      return this._code;
+    get nom() {
+      return this._nom;
     }
-    get description() {
-        return this._description;
+    get id() {
+      return this._id;
     }
-    get libelle() {
-    return this._libelle;
-    }
-    // ---- setters
 
-  
-    set libelle(libelle) {
-      this._libelle = libelle;
-    }
-  
-    set description(description) {
-      this._description = description;
+    // ---- setters
+    set nom(nom) {
+      this._nom = nom;
     }
   
     // -- toString

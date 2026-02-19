@@ -1,43 +1,23 @@
 <script setup>
-import { reactive, onMounted, watch } from 'vue';
+import { reactive, onMounted, watch, defineProps } from 'vue';
 import { Medicament } from '../Medicament.js';
-import { Categorie } from '../Categorie.js';
-const url = 'https://springajax.herokuapp.com/api/medicaments';
+const props = defineProps({
+  idCat: String
+});
+const emit = defineEmits(['ajout1']);
+
+const urlBase = 'https://springajax.herokuapp.com/api/medicaments';
 const listeMedic = reactive([]);
-const urlCategorie = 'https://springajax.herokuapp.com/api/categories';
 
-
-function getCategorie(){
-  const fetchOptions = { method: 'GET' };
-  fetch(urlCategorie, fetchOptions)
-    .then((response) => {
-      return response.json();
-    })
-    .then((dataJSON) => {
-      console.log(dataJSON);
-      for (let elt of dataJSON._embedded.categories) {
-        //console.log(elt);
-        let c = new Categorie(
-          elt.code,
-          elt.libelle,
-          elt.description
-        );
-        listeMedic.push(m);
-        
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
-function getMedic() {
+function getMedic(url) {
+  listeMedic.splice(0, listeMedic.length);
   const fetchOptions = { method: 'GET' };
   fetch(url, fetchOptions)
     .then((response) => {
       return response.json();
     })
     .then((dataJSON) => {
-      console.log(dataJSON);
+      //console.log(dataJSON);
       for (let elt of dataJSON._embedded.medicaments) {
         //console.log(elt);
         let m = new Medicament(
@@ -48,8 +28,15 @@ function getMedic() {
           elt.nom,
           elt.prixUnitaire,
           elt.quantiteParUnite,
-          elt.unitesEnStock
+          elt.unitesEnStock,
         );
+
+        fetch(elt._links.categorie.href)
+          .then(res => res.json())
+          .then(catData => {
+            m.categorie = catData.libelle; 
+          })
+        m.isFlipped = false;
         listeMedic.push(m);
         
       }
@@ -61,15 +48,26 @@ function getMedic() {
     });
 }
 
-onMounted(() => {
-  getCategorie();
-  getMedic();
+watch(() => props.idCat, (nouvelId) => {
+  let urlFiltree = urlBase;
+  
+  if (nouvelId && nouvelId !== "") {
+    urlFiltree = `https://springajax.herokuapp.com/api/categories/${nouvelId}/medicaments`;
+  }
+  
+  getMedic(urlFiltree);
 });
 
-function afficherDetails(medic) {
-  console.log("Détails du médicament cliqué :", medic.nom);
-  medic.isFlipped = !medic.isFlipped;
-}
+onMounted(() => {
+  getMedic(urlBase);
+});
+
+const modifierStock = (medic, delta) => {
+  console.log(medic.nbstock);
+  medic.nbstock += delta;
+  console.log(medic.nbstock);
+  // Optionnel : emit('updateStock', medic) pour sauvegarder en BD
+};
 </script>
 
 <template>
@@ -77,25 +75,28 @@ function afficherDetails(medic) {
     <div id="ajouter-medic" class="medic-item">
       <h3>Ajouter un médicament</h3>
     </div>
-    <div v-for="medic in listeMedic" :key="medic.id" class="medic-item" @click="afficherDetails(medic)">
+    <div v-for="medic in listeMedic" :key="medic.id" class="medic-item"  >
       <h3>{{ medic.nom }}</h3>
-      <div class="medic-image">
+      <div @mouseenter="medic.isFlipped = true" @mouseleave="medic.isFlipped = false">
+        <div class="medic-image">
         <div v-if="medic.isFlipped" class="medic-details">
-          <p>Fournisseur : {{ medic.fournisseur }}</p>
-          <p>Prix : {{ medic.prix }} €</p>
-          <p>Stock : {{ medic.nbstock }} unités</p>
-          <p>Quantité par boîte : {{ medic.qteunite }} </p>
+          <p><strong>Categorie :</strong> {{ medic.categorie }}</p>
+          <p><strong>Prix :</strong> {{ medic.prix }} €</p>
+          <p><strong>Stock :</strong> {{ medic.nbstock }} unités</p>
+          <p><strong>Quantité par boîte :</strong> {{ medic.qteunite }} </p>
         </div>
 
         <div v-else class="medic-image">
           <img :src="medic.image" alt="image médicament" />
         </div>
       </div>
-      <div class="medic-button">
+      </div>
+      
+      <div @submit.prevent="envoyerChoix" class="medic-button">
         <button id="supprimer">Supprimer</button>
         <button id="modifier">Modifier</button>
-        <button id="+1">+1</button>
-        <button id="-1">-1</button>
+        <button @click.stop="modifierStock(medic, +1)" id="+1">+1</button>
+        <button @click.stop="modifierStock(medic, -1)" id="-1">-1</button>
       </div>
     </div>
   </div>
@@ -106,11 +107,11 @@ function afficherDetails(medic) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
-  max-width: 90%;
+  width: 90%;
   margin: 0 auto;
 }
 .medic-image {
-  height: 80%;
+  height: 200px;
   width: 100%;
   display: flex;             
   flex-direction: column;    
@@ -118,12 +119,17 @@ function afficherDetails(medic) {
   align-items: center;
 }
 
+.medic-details {
+  height: 200px;
+  display:contents;  
+}
+
 .medic-image img {
   max-width: 80%;
   max-height: 80%;
-
   object-fit: contain;
 }
+
 #ajouter-medic{
   display: flex;             
   flex-direction: column;    
