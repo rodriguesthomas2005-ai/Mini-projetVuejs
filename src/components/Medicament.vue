@@ -39,8 +39,6 @@ function getMedic(url) {
         fetch(elt._links.categorie.href)
           .then(res => res.json())
           .then(catData => {
-            // Puisque 'm' est une référence vers l'objet dans 'listeMedic',
-            // modifier m.categorie mettra à jour l'affichage automatiquement.
             m.categorie = catData.libelle; 
           });
       });
