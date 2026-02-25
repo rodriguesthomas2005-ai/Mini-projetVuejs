@@ -10,14 +10,12 @@ const listeCat = ref("")
 function filtrerLesMedics(id) {
   idCategorieSelectionnee.value = id;
 }
-function recupCat(liste){
-  listeCat = liste;
-}
+
 </script>
 
 <template>
   <h1>Gestion des stocks</h1>
-  <MedicamentForm @filterCategory="filtrerLesMedics" @listeCat="recupCat"/>
+  <MedicamentForm @filterCategory="filtrerLesMedics" />
   
-  <Medicament :idCat="idCategorieSelectionnee" :listeCat="listeCat"/>
+  <Medicament :idCat="idCategorieSelectionnee" />
 </template>

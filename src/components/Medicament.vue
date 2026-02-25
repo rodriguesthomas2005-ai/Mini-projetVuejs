@@ -10,7 +10,9 @@ const props = defineProps({
 const emit = defineEmits(['ajout1']);
 
 const urlBase = 'https://full-lilith-thomas2005-de470762.koyeb.app/api/medicaments';
+const urlCat = 'https://springajax.herokuapp.com/api/categories';
 const listeMedic = reactive([]);
+const listeCategorie = reactive([]);
 //////////////////////////////////
 
 
@@ -37,13 +39,36 @@ function getMedic(url) {
           .then(res => res.json())
           .then(catData => {
             m.categorie = catData.libelle; 
-            console.log(m.categorie)
             listeMedic.push(m);
           });
           
       };
     })
     .catch(error => console.error("Erreur:", error));
+}
+
+
+function getCat(url) {
+  const fetchOptions = { method: 'GET' };
+  fetch(url, fetchOptions)
+    .then((response) => {
+      return response.json();
+    })
+    .then((dataJSON) => {
+      for (let elt of dataJSON._embedded.categories) {
+        //console.log(elt);
+        let c = new Categorie(
+          elt.code,
+          elt.libelle
+        );
+        listeCategorie.push(c);
+      }
+      console.log(listeCategorie)
+    })
+    
+    .catch((error) => {
+      console.log(error);
+    });
 }
 ///////////////////////////////////
 
@@ -106,7 +131,10 @@ watch(() => props.idCat, (nouvelId) => {
   getMedic(url);
 });
 
-onMounted(() => getMedic(urlBase));
+onMounted(() => {
+  getMedic(urlBase);
+  getCat(urlCat);
+});
 </script>
 
 <template>
@@ -137,7 +165,12 @@ onMounted(() => getMedic(urlBase));
           
           <div v-if="medic.isEditing" class="edit-fields">
             <p><strong>Catégorie:</strong></p>
-            
+            <select v-model="selectedCat" id="med-select">
+              <option value="">Toutes les catégories</option>
+              <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">
+                {{ cat.nom }}
+              </option>
+            </select>
             <label>Format:</label>
             <input v-model="medic._qteunite" class="edit-input" />
             <label>Prix (€):</label>
