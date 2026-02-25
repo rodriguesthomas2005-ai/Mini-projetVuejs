@@ -2,7 +2,7 @@
 import { reactive, onMounted, ref } from 'vue';
 import { Categorie } from '../Categorie.js';
 
-const emit = defineEmits(['filterCategory']);
+const emit = defineEmits(['filterCategory', 'listeCat']);
 const listeCategorie = reactive([]);
 const selectedCat = ref("");
 
@@ -15,7 +15,6 @@ function getCat() {
       return response.json();
     })
     .then((dataJSON) => {
-      console.log(dataJSON);
       for (let elt of dataJSON._embedded.categories) {
         //console.log(elt);
         let c = new Categorie(
@@ -31,6 +30,7 @@ function getCat() {
     .catch((error) => {
       console.log(error);
     });
+  emit('listeCat', listeCategorie);  
 }
 
 onMounted(() => {

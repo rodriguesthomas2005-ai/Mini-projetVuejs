@@ -18,7 +18,7 @@ onMounted(() => {
     .then(res => res.json())
     .then(data => {
       listeCategorie.value = data._embedded.categories.map(c => ({
-        id: c._links.self.href.split('/').pop(),
+        id: c.code,
         nom: c.libelle 
       }));
     });

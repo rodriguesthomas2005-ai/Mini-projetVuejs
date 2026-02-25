@@ -2,10 +2,12 @@
 export class Categorie {
     constructor(
       id,
-      nom
+      nom,
+      description
     ) {
       this._id=id;
-      this._nom=nom
+      this._nom=nom;
+      this._description=description
     }
     // ---- getters
     get nom() {

@@ -2,6 +2,7 @@
 import { reactive, onMounted, watch, defineProps } from 'vue';
 import { Medicament } from '../Medicament.js';
 import MedicAdd from './MedicAdd.vue';
+import { Categorie } from '../Categorie.js';
 
 const props = defineProps({
   idCat: String
@@ -10,17 +11,16 @@ const emit = defineEmits(['ajout1']);
 
 const urlBase = 'https://full-lilith-thomas2005-de470762.koyeb.app/api/medicaments';
 const listeMedic = reactive([]);
+//////////////////////////////////
 
+
+//afficher les médicaments//
 function getMedic(url) {
-  // On vide la liste au début
   listeMedic.splice(0, listeMedic.length);
-  
   fetch(url)
     .then(response => response.json())
     .then((dataJSON) => {
-      const meds = dataJSON._embedded ? dataJSON._embedded.medicaments : [];
-      
-      meds.forEach((elt) => {
+      for (let elt of dataJSON._embedded.medicaments) {
         let m = new Medicament(
           elt.reference,
           elt.fournisseur,
@@ -31,20 +31,64 @@ function getMedic(url) {
           elt.quantiteParUnite,
           elt.unitesEnStock
         );
-
-        // On ajoute l'objet à la liste réactive
-        listeMedic.push(m);
-
-        // On charge la catégorie en arrière-plan
+        m.isEditing = false; 
+        
         fetch(elt._links.categorie.href)
           .then(res => res.json())
           .then(catData => {
             m.categorie = catData.libelle; 
+            console.log(m.categorie)
+            listeMedic.push(m);
           });
-      });
+          
+      };
     })
     .catch(error => console.error("Erreur:", error));
 }
+///////////////////////////////////
+
+
+//modifier//
+const modifierStock = (medic, delta) => {
+  medic.nbstock += delta;
+  const urlUpdate = `${urlBase}/${medic.id}`;
+
+  fetch(urlUpdate, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ unitesEnStock: medic.nbstock })
+  })
+  .then(response => {
+    if (!response.ok) console.error("Erreur lors de la mise à jour du stock");
+  })
+  .catch(error => console.error("Erreur réseau :", error));
+};
+
+const toggleEdit = (medic) => {
+  medic.isEditing = !medic.isEditing;
+};
+
+const updateMed = (medic) => {
+  const urlUpdate = `${urlBase}/${medic.id}`;
+  const updatedData = {
+    nom: medic.nom,
+    prixUnitaire: medic.prix,
+    quantiteParUnite: medic.qteunite
+  };
+
+  fetch(urlUpdate, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedData)
+  })
+  .then(response => {
+    if (response.ok) {
+      medic.isEditing = false;
+    } else {
+      alert("Erreur lors de la mise à jour");
+    }
+  });
+};
 
 function deleteMed(id) {
   if (!id || !confirm("Supprimer ce médicament ?")) return;
@@ -63,10 +107,6 @@ watch(() => props.idCat, (nouvelId) => {
 });
 
 onMounted(() => getMedic(urlBase));
-
-const modifierStock = (medic, delta) => {
-  medic.nbstock += delta;
-};
 </script>
 
 <template>
@@ -77,7 +117,8 @@ const modifierStock = (medic, delta) => {
 
     <div v-for="medic in listeMedic" :key="medic.id" class="medic-item">
       <div class="medic-header">
-        <h3>{{ medic.nom }}</h3>
+        <input v-if="medic.isEditing" v-model="medic._nom" class="edit-input-title" />
+        <h3 v-else>{{ medic.nom }}</h3>
       </div>
 
       <div class="medic-body">
@@ -92,9 +133,23 @@ const modifierStock = (medic, delta) => {
         </div>
 
         <div class="details-section">
-          <p><strong>Catégorie:</strong> {{ medic.categorie || 'Chargement...' }}</p>
-          <p><strong>Format:</strong> {{ medic.qteunite }}</p>
-          <p><strong>Prix:</strong> {{ medic.prix }} €</p>
+          
+          
+          <div v-if="medic.isEditing" class="edit-fields">
+            <p><strong>Catégorie:</strong></p>
+            
+            <label>Format:</label>
+            <input v-model="medic._qteunite" class="edit-input" />
+            <label>Prix (€):</label>
+            <input v-model="medic._prix" type="number" step="0.01" class="edit-input" />
+          </div>
+
+          <div v-else>
+            <p><strong>Catégorie:</strong> {{ medic.categorie || '...' }}</p>
+            <p><strong>Format:</strong> {{ medic.qteunite }}</p>
+            <p><strong>Prix:</strong> {{ medic.prix }} €</p>
+          </div>
+
           <p class="status" :class="{ 'out': medic.nbstock == 0 }">
             {{ medic.nbstock > 0 ? 'En stock' : 'Rupture' }}
           </p>
@@ -102,8 +157,10 @@ const modifierStock = (medic, delta) => {
       </div>
 
       <div class="medic-footer">
-        <button @click="deleteMed(medic.id)" class="btn-action delete">Supprimer</button>
-        <button class="btn-action edit">Modifier</button>
+        <button v-if="!medic.isEditing" @click="deleteMed(medic.id)" class="btn-action delete">Supprimer</button>
+        
+        <button v-if="!medic.isEditing" @click="toggleEdit(medic)" class="btn-action edit">Modifier</button>
+        <button v-else @click="updateMed(medic)" class="btn-action save">Enregistrer</button>
       </div>
     </div>
   </div>
@@ -155,7 +212,8 @@ const modifierStock = (medic, delta) => {
 
 .btn-qte {
   width: 24px; height: 24px; border-radius: 50%; border: none;
-  background: white; cursor: pointer; font-weight: bold;
+  background: white; cursor: pointer; font-weight: bold; color:#a8a8a8;
+  
 }
 
 .qte-val { font-weight: bold; min-width: 20px; text-align: center; }

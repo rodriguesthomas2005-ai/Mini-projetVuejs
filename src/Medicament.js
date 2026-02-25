@@ -8,8 +8,7 @@ export class Medicament {
     nom,
     prix,
     qteunite,
-    nbstock,
-    categorie
+    nbstock
   ) {
     this._fournisseur = fournisseur;
     this._image = image;
@@ -19,7 +18,7 @@ export class Medicament {
     this._prix = prix;
     this._qteunite = qteunite;
     this._nbstock = nbstock;
-    this._categorie = categorie;
+    this._categorie = "";
   }
   // ---- getters
   get fournisseur() {
