@@ -19,7 +19,7 @@ const listeCategorie = reactive([]);
 //afficher les médicaments//
 function getMedic(url) {
   listeMedic.splice(0, listeMedic.length);
-  fetch(url)
+  fetch(`${url}?size=200`)
     .then(response => response.json())
     .then((dataJSON) => {
       for (let elt of dataJSON._embedded.medicaments) {
@@ -63,7 +63,6 @@ function getCat(url) {
         );
         listeCategorie.push(c);
       }
-      console.log(listeCategorie)
     })
     
     .catch((error) => {
@@ -116,13 +115,60 @@ const updateMed = (medic) => {
 };
 
 function deleteMed(id) {
+  // urlBase vaut 'https://.../api/medicaments' sans le '?'
   if (!id || !confirm("Supprimer ce médicament ?")) return;
+
   fetch(`${urlBase}/${id}`, { method: 'DELETE' })
     .then(response => {
       if (response.ok) {
         const index = listeMedic.findIndex(m => m.id == id);
         if (index != -1) listeMedic.splice(index, 1);
+      } else {
+        alert("Erreur lors de la suppression");
       }
+    });
+}
+function handlerAddMedic(nouveauMedicData) {
+  const url = 'https://full-lilith-thomas2005-de470762.koyeb.app/api/medicaments';
+  
+  // 1. Définition des Headers
+  let myHeaders = new Headers(); 
+  myHeaders.append("Content-Type", "application/json"); 
+
+  // 2. Préparation du corps (Body) avec les noms exacts de l'API
+  const MedicToAdd = {
+    nom: nouveauMedicData.nom,
+    quantiteParUnite: nouveauMedicData.quantiteParUnite,
+    prixUnitaire: parseFloat(nouveauMedicData.prixUnitaire),
+    unitesEnStock: parseInt(nouveauMedicData.unitesEnStock),
+    indisponible: nouveauMedicData.indisponible || false,
+    imageURL: nouveauMedicData.imageURL || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
+    // Lien HATEOAS pour associer la catégorie
+    categorie: `https://springajax.herokuapp.com/api/categories/${nouveauMedicData.idCategorie}`
+  };
+
+  const fetchOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: JSON.stringify(MedicToAdd),
+  };
+
+  fetch(url, fetchOptions)
+    .then((response) => {
+      if (response.status === 409) {
+        throw new Error("Conflit : Un médicament avec ce nom existe déjà.");
+      }
+      if (!response.ok) throw new Error("Erreur lors de l'ajout");
+      return response.json();
+    })
+    .then((dataJSON) => {
+      console.log("Succès :", dataJSON);
+      console.log(dataJSON);
+      getMedic(urlBase); // On rafraîchit la liste pour voir l'ajout
+    })
+    .catch((error) => {
+      console.error("Erreur ajout:", error);
+      alert(error.message);
     });
 }
 
@@ -140,7 +186,7 @@ onMounted(() => {
 <template>
   <div class="medicaments-container">
     <div class="medic-item add-zone">
-      <MedicAdd @ajout1="$emit('ajout1')"></MedicAdd>
+      <MedicAdd @ajout1="getMedic(urlBase)" @MedicAdd="handlerAddMedic"></MedicAdd>
     </div>
 
     <div v-for="medic in listeMedic" :key="medic.id" class="medic-item">
@@ -225,13 +271,13 @@ onMounted(() => {
 
 .medic-header h3 { margin: 0; color: #2c3e50; font-size: 1.1rem; }
 
-.medic-body { display: flex; gap: 15px; margin-top: 15px; flex: 1; }
+.medic-body { display: flex; gap: 5px; margin-top: 15px; flex: 1; }
 
-.image-section { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.image-section { flex: 1; display: flex; flex-direction: column; align-items: center;}
 
-.medic-img { width: 100px; height: 100px; object-fit: contain; }
+.medic-img { width: 100%; max-height: 100%; object-fit: contain; }
 
-.details-section { flex: 1.2; font-size: 0.9rem; color: #555; }
+.details-section { flex: 1.2; font-size: 0.9rem; color: #555;}
 
 .stock-control {
   display: flex;
