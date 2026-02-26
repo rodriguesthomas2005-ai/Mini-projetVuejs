@@ -39,6 +39,7 @@ function getMedic(url) {
           .then(res => res.json())
           .then(catData => {
             m.categorie = catData.libelle; 
+            m.description = catData.description;
             listeMedic.push(m);
           });
           
@@ -59,7 +60,8 @@ function getCat(url) {
         //console.log(elt);
         let c = new Categorie(
           elt.code,
-          elt.libelle
+          elt.libelle,
+          elt.description
         );
         listeCategorie.push(c);
       }
@@ -130,12 +132,10 @@ function deleteMed(id) {
 }
 function handlerAddMedic(nouveauMedicData) {
   const url = 'https://full-lilith-thomas2005-de470762.koyeb.app/api/medicaments';
-  
-  // 1. Définition des Headers
+
   let myHeaders = new Headers(); 
   myHeaders.append("Content-Type", "application/json"); 
 
-  // 2. Préparation du corps (Body) avec les noms exacts de l'API
   const MedicToAdd = {
     nom: nouveauMedicData.nom,
     quantiteParUnite: nouveauMedicData.quantiteParUnite,
@@ -186,7 +186,11 @@ onMounted(() => {
 <template>
   <div class="medicaments-container">
     <div class="medic-item add-zone">
-      <MedicAdd @ajout1="getMedic(urlBase)" @MedicAdd="handlerAddMedic"></MedicAdd>
+      <MedicAdd 
+        @ajout1="getMedic(urlBase)" 
+        @MedicAdd="handlerAddMedic" 
+        :categories="listeCategorie" 
+      />
     </div>
 
     <div v-for="medic in listeMedic" :key="medic.id" class="medic-item">
@@ -204,6 +208,9 @@ onMounted(() => {
             <span class="qte-val">{{ medic.nbstock }}</span>
             <button @click="modifierStock(medic, 1)" class="btn-qte">+</button>
           </div>
+          <p class="status" :class="{ 'out': medic.nbstock == 0 }">
+            {{ medic.nbstock > 0 ? 'En stock' : 'Rupture' }}
+          </p>
         </div>
 
         <div class="details-section">
@@ -211,7 +218,7 @@ onMounted(() => {
           
           <div v-if="medic.isEditing" class="edit-fields">
             <p><strong>Catégorie:</strong></p>
-            <select v-model="selectedCat" id="med-select">
+            <select v-model="medic.idCategorie" id="med-select">
               <option value="">Toutes les catégories</option>
               <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">
                 {{ cat.nom }}
@@ -221,17 +228,18 @@ onMounted(() => {
             <input v-model="medic._qteunite" class="edit-input" />
             <label>Prix (€):</label>
             <input v-model="medic._prix" type="number" step="0.01" class="edit-input" />
+            <div class="checkbox-group">
+              <input type="checkbox" id="indispo" v-model="indisponible" />
+              <label for="indispo">Indisponible</label>
+            </div>
           </div>
 
           <div v-else>
             <p><strong>Catégorie:</strong> {{ medic.categorie || '...' }}</p>
+            <p><strong>Description:</strong> {{ medic.description || '...' }}</p>
             <p><strong>Format:</strong> {{ medic.qteunite }}</p>
             <p><strong>Prix:</strong> {{ medic.prix }} €</p>
           </div>
-
-          <p class="status" :class="{ 'out': medic.nbstock == 0 }">
-            {{ medic.nbstock > 0 ? 'En stock' : 'Rupture' }}
-          </p>
         </div>
       </div>
 
@@ -248,7 +256,7 @@ onMounted(() => {
 <style scoped>
 .medicaments-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 25px;
   padding: 20px;
 }

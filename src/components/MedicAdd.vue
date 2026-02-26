@@ -1,6 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
+const props = defineProps({
+  categories: {
+    type: Array,
+    required: true 
+  }
+});
+
 const libelle = ref(''); 
 const fournisseur = ref(''); 
 const urlImage = ref(''); 
@@ -9,20 +16,8 @@ const prix = ref('');
 const qteboite = ref('');
 const selectedCat = ref('');
 const indisponible = ref(false);
-const listeCategorie = ref([]); 
 
 const emit = defineEmits(['ajout1', 'MedicAdd']);
-
-onMounted(() => {
-  fetch('https://springajax.herokuapp.com/api/categories')
-    .then(res => res.json())
-    .then(data => {
-      listeCategorie.value = data._embedded.categories.map(c => ({
-        id: c.code,
-        nom: c.libelle 
-      }));
-    });
-});
 
 const ajouterMedicament = () => {
   const nouveauMedic = {
@@ -46,6 +41,7 @@ const ajouterMedicament = () => {
 </script>
 
 <template>
+  <div class="medic-add-wrapper">
     <h3>Nouveau Produit</h3>
     
     <form @submit.prevent="ajouterMedicament" class="add-form">
@@ -55,7 +51,7 @@ const ajouterMedicament = () => {
         <div class="row">
           <select v-model="selectedCat" required>
             <option value="" disabled selected>Catégorie</option>
-            <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">{{ cat.nom }}</option>
+            <option v-for="cat in props.categories" :key="cat.id" :value="cat.id">{{ cat.nom }}</option>
           </select>
         </div>
 
@@ -78,6 +74,7 @@ const ajouterMedicament = () => {
         <button type="submit" class="btn-submit">Ajouter à la liste</button>
       </div>
     </form>
+  </div>
 </template>
 
 <style scoped>

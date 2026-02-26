@@ -37,15 +37,19 @@ onMounted(() => {
   getCat();
 });
 
-function envoyerChoix() {
+function envoyerChoixCat() {
   emit('filterCategory', selectedCat.value);
 }
+function envoyerMotMed(){
+  emit('eventAdd', libelle)
+}
+
 </script>
 
 <template>
   <div class="form-container">
-    <form @submit.prevent="envoyerChoix">
-      <label for="med-select">Choisir une catégorie :</label>
+    <form @submit.prevent="envoyerChoixCat">
+      <label for="med-select">Recherche par catégorie</label>
       <select v-model="selectedCat" id="med-select">
           <option value="">Toutes les catégories</option>
           <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">
@@ -54,19 +58,29 @@ function envoyerChoix() {
       </select>
       <button class="btn-submit" type="submit">Rechercher</button>
     </form>
+    <form @submit.prevent="envoyerMotMed">
+      <label for="med-select">Recherche par nom</label>
+      <input class='input-form' v-model="libelle" type="text" placeholder="Nouvelle tâche" />
+      <button class="btn-submit" type="submit">Rechercher</button>
+    </form>
   </div>
 </template>
 
 <style>
 
 .form-container {
-  width: 90%; 
+  width: 98%; 
   margin: 20px auto;
   padding : 20px;
   background-color: white; 
   border-radius: 12px;
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
   box-sizing: border-box;
+  display : flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  gap: 40px; 
+  flex-wrap: wrap; 
 }
 
 
@@ -86,7 +100,7 @@ label {
   font-size: 1rem;
 }
 
-select {
+select, .input-form{
   background-color: white;
   color: #2c3e50;
   height: 42px;

@@ -19,6 +19,7 @@ export class Medicament {
     this._qteunite = qteunite;
     this._nbstock = nbstock;
     this._categorie = "";
+    this._description = "";
   }
   // ---- getters
   get fournisseur() {
