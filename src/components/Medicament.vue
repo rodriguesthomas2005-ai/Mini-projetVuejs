@@ -102,12 +102,16 @@ const toggleEdit = (medic) => {
 
 const updateMed = (medic) => {
   const urlUpdate = `${urlBase}/${medic.id}`;
+  
+  // 1. Préparation des données simples
   const updatedData = {
-    nom: medic.nom,
+    nom: medic.nom, // Utilise la propriété publique (getter/setter)
     prixUnitaire: medic.prix,
-    quantiteParUnite: medic.qteunite
+    quantiteParUnite: medic.qteunite,
+    indisponible: medic.indisponible // Correction du nom du champ
   };
 
+  // 2. Envoi du PATCH pour les données de base
   fetch(urlUpdate, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -115,12 +119,25 @@ const updateMed = (medic) => {
   })
   .then(response => {
     if (response.ok) {
-      medic.isEditing = false;
-    } else {
-      alert("Erreur lors de la mise à jour");
+      // 3. Mise à jour de la relation Catégorie (si modifiée)
+      // On envoie l'URL de la catégorie au endpoint spécial de l'API
+      const urlRelationCat = `${urlUpdate}/categorie`;
+      const categoryUrl = `https://springajax.herokuapp.com/api/categories/${medic.idCategorie}`;
+
+      return fetch(urlRelationCat, {
+        method: 'PUT', // Pour les relations HATEOAS, on utilise souvent PUT avec text/uri-list
+        headers: { 'Content-Type': 'text/uri-list' },
+        body: categoryUrl
+      });
     }
-  });
+  })
+  .then(() => {
+    medic.isEditing = false;
+    getMedic(urlBase, props.mot || ""); // Rafraîchir pour voir les changements
+  })
+  .catch(err => alert("Erreur lors de la mise à jour : " + err));
 };
+
 
 function deleteMed(id) {
   if (!id || !confirm("Supprimer ce médicament ?")) return;
@@ -228,24 +245,19 @@ onMounted(() => {
           
           
           <div v-if="medic.isEditing" class="edit-fields">
-            <p><strong>Catégorie:</strong></p>
-            <select v-model="medic.idCategorie" id="med-select">
-              <option value="">Toutes les catégories</option>
-              <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">
-                {{ cat.nom }}
-              </option>
-            </select>
+              <select v-model="medic.idCategorie"> <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">
+                      {{ cat.nom }}
+                  </option>
+              </select>
 
-            <label>Format:</label>
-            <input v-model="medic._qteunite" class="edit-input" />
+              <input v-model="medic.nom" class="edit-input" />
+              <input v-model="medic.qteunite" class="edit-input" />
+              <input v-model="medic.prix" type="number" class="edit-input" />
 
-            <label>Prix (€):</label>
-            <input v-model="medic._prix" type="number" step="0.01" class="edit-input" />
-
-            <div class="checkbox-group">
-              <input type="checkbox" id="indispo" v-model="indisponible" />
-              <label for="indispo">Indisponible</label>
-            </div>
+              <div class="checkbox-group">
+                  <input type="checkbox" :id="'indispo-' + medic.id" v-model="medic.indisponible" />
+                  <label :for="'indispo-' + medic.id">Indisponible</label>
+              </div>
           </div>
 
           <div v-else>
@@ -253,6 +265,7 @@ onMounted(() => {
             <p><strong>Description:</strong> {{ medic.description || '...' }}</p>
             <p><strong>Format:</strong> {{ medic.qteunite }}</p>
             <p><strong>Prix:</strong> {{ medic.prix }} €</p>
+            <p v-if="medic.indisponible" class="status out"><strong>Produit Indisponible</strong></p>
           </div>
         </div>
       </div>
@@ -317,7 +330,7 @@ onMounted(() => {
   
 }
 
-.edit-input-title{
+.edit-input, .edit-input-title{
   background-color: white;
   color: #2c3e50;
   height: 42px;

@@ -62,7 +62,7 @@ export class Medicament {
     this._prix = prix;
   }
 
-  set indispo(indispo) {
+  set indisponible(indispo) {
     this._indisponible = indispo;
   }
 
