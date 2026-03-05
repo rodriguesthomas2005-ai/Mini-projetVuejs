@@ -2,9 +2,10 @@
 import { reactive, onMounted, ref } from 'vue';
 import { Categorie } from '../Categorie.js';
 
-const emit = defineEmits(['filterCategory', 'listeCat']);
+const emit = defineEmits(['filterCategory', 'listeCat', 'eventAdd']);
 const listeCategorie = reactive([]);
 const selectedCat = ref("");
+const libelle = ref("");
 
 const url = 'https://springajax.herokuapp.com/api/categories';
 
@@ -16,7 +17,7 @@ function getCat() {
     })
     .then((dataJSON) => {
       for (let elt of dataJSON._embedded.categories) {
-        //console.log(elt);
+
         let c = new Categorie(
           elt.code,
           elt.libelle
@@ -25,7 +26,7 @@ function getCat() {
         listeCategorie.push(c);
         
       }
-      //console.log(listeMedic);
+
     })
     .catch((error) => {
       console.log(error);
@@ -41,7 +42,7 @@ function envoyerChoixCat() {
   emit('filterCategory', selectedCat.value);
 }
 function envoyerMotMed(){
-  emit('eventAdd', libelle)
+  emit('eventAdd', libelle.value)
 }
 
 </script>
@@ -60,7 +61,7 @@ function envoyerMotMed(){
     </form>
     <form @submit.prevent="envoyerMotMed">
       <label for="med-select">Recherche par nom</label>
-      <input class='input-form' v-model="libelle" type="text" placeholder="Nouvelle tâche" />
+      <input class='input-form' v-model="libelle" type="text" placeholder="Mots clés" />
       <button class="btn-submit" type="submit">Rechercher</button>
     </form>
   </div>
@@ -100,7 +101,7 @@ label {
   font-size: 1rem;
 }
 
-select, .input-form{
+select{
   background-color: white;
   color: #2c3e50;
   height: 42px;
@@ -119,6 +120,18 @@ select, .input-form{
   background-size: 18px;
 }
 
+.input-form{
+  background-color: white;
+  color: #2c3e50;
+  height: 42px;
+  min-width: 250px;
+  padding: 0 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
 select:focus {
   border-color: #4caf50; 
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);

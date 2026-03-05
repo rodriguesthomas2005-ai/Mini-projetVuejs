@@ -162,6 +162,6 @@ checkbox-group {
 
 input.no-spin::-webkit-outer-spin-button,
 input.no-spin::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input.no-spin[type=number] { -moz-appearance: textfield; }
+
 
 </style>
