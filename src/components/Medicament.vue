@@ -165,7 +165,7 @@ function handlerAddMedic(nouveauMedicData) {
     unitesEnStock: parseInt(nouveauMedicData.unitesEnStock),
     indisponible: nouveauMedicData.indisponible || false,
     imageURL: nouveauMedicData.imageURL || "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400",
-    // Lien HATEOAS pour associer la catégorie
+
     categorie: `https://springajax.herokuapp.com/api/categories/${nouveauMedicData.idCategorie}`
   };
 
@@ -186,7 +186,7 @@ function handlerAddMedic(nouveauMedicData) {
     .then((dataJSON) => {
       console.log("Succès :", dataJSON);
       console.log(dataJSON);
-      getMedic(urlBase); // On rafraîchit la liste pour voir l'ajout
+      getMedic(urlBase);
     })
     .catch((error) => {
       console.error("Erreur ajout:", error);
@@ -245,13 +245,14 @@ onMounted(() => {
           
           
           <div v-if="medic.isEditing" class="edit-fields">
+            <p><strong>Catégorie:</strong></p>
               <select v-model="medic.idCategorie"> <option v-for="cat in listeCategorie" :key="cat.id" :value="cat.id">
                       {{ cat.nom }}
                   </option>
               </select>
-
-              <input v-model="medic.nom" class="edit-input" />
+              <p><strong>Quantité par boîte:</strong></p>
               <input v-model="medic.qteunite" class="edit-input" />
+              <p><strong>Prix</strong></p>
               <input v-model="medic.prix" type="number" class="edit-input" />
 
               <div class="checkbox-group">
