@@ -213,7 +213,7 @@ onMounted(() => {
 
 <template>
   <div class="medicaments-container">
-    <div class="medic-item add-zone">
+    <div class="medic-item ajout">
       <MedicAdd 
           @ajout1="() => getMedic(urlBase, '')"
           @MedicAdd="handlerAddMedic"
@@ -355,5 +355,5 @@ onMounted(() => {
 .delete { background: #fff1f0; color: #cf1322; }
 .edit { background: #f0f5ff; color: #096dd9; }
 
-.add-zone { border: 2px dashed #d9d9d9; justify-content: center; align-items: center; }
+.ajout { border: 2px dashed #d9d9d9; justify-content: center; align-items: center; }
 </style>
